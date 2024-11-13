@@ -84,7 +84,7 @@ def index():
 
     if request.method == 'POST':
         brand_name = request.form['brand_name']
-        brands_data = read_pdf('file/Produk.pdf')
+        brands_data = read_pdf('static/Produk.pdf')
         result, status, recommendations, status_color, possible_match = check_brand(brand_name, brands_data)
 
     return render_template('index.html', 
