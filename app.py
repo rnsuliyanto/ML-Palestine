@@ -11,29 +11,42 @@ app = Flask(__name__)
 # Fungsi untuk membaca data dari PDF
 def read_pdf(file_path):
     brands = []
+    
+    # Cek jika file tidak ada
     if not os.path.exists(file_path):
-        print("File PDF tidak ditemukan!")
+        print(f"File PDF tidak ditemukan di path: {file_path}")
         return brands
-
-    with open(file_path, 'rb') as file:
-        reader = PyPDF2.PdfReader(file)
-        for page in reader.pages:
-            text = page.extract_text()
-            if text:
-                lines = text.split('\n')
-                for line in lines:
-                    parts = line.strip().split()
-                    if len(parts) >= 3:
-                        brand_name = ' '.join(parts[:-2])
-                        status = parts[-2]
-                        category = parts[-1]
-                        brands.append((brand_name, status, category))
+    
+    try:
+        with open(file_path, 'rb') as file:
+            reader = PyPDF2.PdfReader(file)
+            
+            # Cek jika PDF kosong
+            if len(reader.pages) == 0:
+                print("File PDF kosong.")
+                return brands
+            
+            for page in reader.pages:
+                text = page.extract_text()
+                if text:
+                    lines = text.split('\n')
+                    for line in lines:
+                        parts = line.strip().split()
+                        if len(parts) >= 3:
+                            brand_name = ' '.join(parts[:-2])
+                            status = parts[-2]
+                            category = parts[-1]
+                            brands.append((brand_name, status, category))
+    except Exception as e:
+        print(f"Terjadi kesalahan saat membaca file PDF: {e}")
+        return brands
+    
     return brands
 
 # Fungsi untuk mencocokkan merek dan memberikan rekomendasi
 def check_brand(brand_name, brands):
     if len(brand_name) < 2:
-        return "Brand tidak ditemukan.", None, None, None
+        return "Brand tidak ditemukan.", None, None, None, None
 
     # Membuat DataFrame untuk pemrosesan
     df = pd.DataFrame(brands, columns=['Nama Brand', 'Status', 'Kategori'])
@@ -85,7 +98,12 @@ def index():
     if request.method == 'POST':
         brand_name = request.form['brand_name']
         brands_data = read_pdf('static/Produk.pdf')
-        result, status, recommendations, status_color, possible_match = check_brand(brand_name, brands_data)
+        
+        # Cek jika PDF tidak ada atau tidak valid
+        if not brands_data:
+            result = "File PDF tidak valid atau tidak ditemukan."
+        else:
+            result, status, recommendations, status_color, possible_match = check_brand(brand_name, brands_data)
 
     return render_template('index.html', 
                            result=result, 
