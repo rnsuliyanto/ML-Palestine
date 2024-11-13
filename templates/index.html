@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Menambahkan Ikon Favicon -->
+    <link rel="icon" href="https://th.bing.com/th/id/OIP.kaRui7W7ELaopHHvmQ7IFAHaE6?rs=1&pid=ImgDetMain" type="image/png">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>Free Palestine</title>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <div class="header">
+                <h1>Pencarian Merek / Brand</h1>
+            </div>
+
+            <!-- Search Form -->
+            <form method="POST" class="search-form">
+                <input type="text" id="brand_name" name="brand_name" placeholder="Masukkan nama merek" required value="{{ request.form['brand_name'] if request.method == 'POST' else '' }}">
+                <button type="submit">Cari</button>
+            </form>
+
+            <!-- Result Section -->
+            {% if result %}
+                <div class="result-section">
+                    <h2>Hasil Pencarian</h2>
+                    <p><strong>Nama Brand:</strong> {{ result }}</p>
+                    {% if status %}
+                        <p><strong>Status:</strong> <span class="status {{ status_color }}">{{ status if status != 'Tidak' else 'Aman' }}</span></p>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Recommendations Section -->
+            {% if recommendations and status != 'Tidak' %}
+                <div class="recommendations-section">
+                    <h2>Alternatif Produk Non-Boikot:</h2>
+                    <ul>
+                        {% for rec in recommendations %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <!-- Possible Match Section -->
+            {% if possible_match %}
+                <h3>Apakah maksud Anda: 
+                    <a href="#" class="possible-match" data-brand="{{ possible_match }}">{{ possible_match }}</a>?
+                </h3>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        $(document).on('click', '.possible-match', function() {
+            var brand = $(this).data('brand');
+            $('#brand_name').val(brand);
+            $('form').submit();
+        });
+    </script>
+</body>
+</html>
