@@ -94,5 +94,6 @@ def index():
                            status_color=status_color, 
                            possible_match=possible_match)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# Hapus bagian app.run() untuk produksi
+# if __name__ == '__main__':
+#     app.run(debug=True)
